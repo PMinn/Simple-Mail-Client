@@ -20,16 +20,24 @@ def loginInit(window, start):
     accountLabel.grid(row = 1, column = 0)
     accountEntry = tk.Entry(window)
     accountEntry.grid(row = 1, column = 1)
-    accountEntry.insert(0, 'iecs01')
+    accountEntry.insert(0, 'iecs10')
 
     passLabel = tk.Label(window ,text = "密碼")
     passLabel.grid(row = 2, column = 0)
     passEntry = tk.Entry(window)
-    passEntry.insert(0, 'K4ZrAHDB')
+    passEntry.insert(0, '3bS7RWYC')
     passEntry.grid(row = 2, column = 1)
 
     start_btn = tk.Button(window, text='連線', font = ("Times", 11, ""), command = lambda: start(ipEntry.get(), accountEntry.get(), passEntry.get()))
     start_btn.grid(row = 3, column = 0,columnspan = 2, pady = 20, sticky = "WENS")
+def loginQuit(window, quitFunc):
+    quitFunc()
+    window.destroy()
+
+def loginAppendQuit(window, quitFunc):
+    start_btn = tk.Button(window, text='關閉', font = ("Times", 11, ""), command = lambda:loginQuit(window, quitFunc))
+    #start_btn.grid(row = 3, column = 0,columnspan = 2, pady = 20, sticky = "WENS")
+    start_btn.pack()
 
 def createToplevel():
     window = tk.Toplevel()
