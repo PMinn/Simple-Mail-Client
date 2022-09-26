@@ -72,13 +72,13 @@ def method2(cSocket):
     cSocket.send(cmd.encode('utf-8'))
     reply = cSocket.recv(BUFF_SIZE).decode('utf-8')
     print('Receive message: %s' % reply)
-    if(reply[0] != '+'):
+    if reply[0] == '+':
         # Count mails
         tokens = reply.split(' ')
         print('Mailbox has %d mails' % int(tokens[1]))
-        return True
+        return True, int(tokens[1])
     else:
-        return False
+        return False, 0
     
 def sendQuit(cSocket):
     cmd = 'QUIT\r\n'
@@ -98,11 +98,11 @@ def getHeader(cSocket,messageId):
     cmd = 'TOP ' + messageId + ' 0\r\n'
     cSocket.send(cmd.encode('utf-8'))
     reply = cSocket.recv(BUFF_SIZE).decode('utf-8')
-    #print('Receive message: %s' % reply)
+    print('Receive message: %s' % reply)
     if reply[0] == '+':
         # Count mails
-        line = ParseMessage(reply)
-        print(line[6])
+        #line = ParseMessage(reply)
+        #print(line[6])
         '''
         line = reply.split(str='\n', num=string.count(str))
         print('line:'+str(len(line)))
@@ -110,15 +110,22 @@ def getHeader(cSocket,messageId):
         return True
     else:
         return False
-def start(ip, account, password):
-    print(ip)
-    print(account)
-    print(password)
+def start(serverIP, account, password):
     cSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     print('Connecting to %s port %s' % (serverIP, PORT))
     cSocket.connect((serverIP, PORT))
+    pop3_init(cSocket)
+    window = tk.createToplevel()
+    tk.loginAppendQuit(window,lambda:sendQuit(cSocket))
+    try:
+        isSuccess, numberOfMails = method2(cSocket)
+        for i in range(numberOfMails):
+            getHeader(cSocket, i)
+    except socket.error as e:
+        print('Socket error: %s' % str(e))
+    except Exception as e:
+        print('Other exception: %s' % str(e))
 
-    
 def main():
     if(len(sys.argv) < 2):
         print("Usage: python3 pop3client.py ServerIP")
