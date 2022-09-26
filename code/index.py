@@ -110,13 +110,24 @@ def getHeader(cSocket,messageId):
         return True
     else:
         return False
+def start(ip, account, password):
+    print(ip)
+    print(account)
+    print(password)
+    cSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    print('Connecting to %s port %s' % (serverIP, PORT))
+    cSocket.connect((serverIP, PORT))
+
     
 def main():
     if(len(sys.argv) < 2):
         print("Usage: python3 pop3client.py ServerIP")
         return
-    window = tk.createWindow()
-    window.mainloop()
+    baseLoginWindow = tk.createTk()
+    tk.loginInit(baseLoginWindow, start)
+    #window = tk.createToplevel()
+    baseLoginWindow.mainloop()
+    return 
 	# Get server IP
     serverIP = socket.gethostbyname(sys.argv[1])
 	
