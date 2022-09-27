@@ -58,7 +58,7 @@ class ListWindow(tk.Toplevel):
     def __init__(self, account, stopFunc):
         super().__init__()
         self.title(account)
-        self.geometry("400x300")
+        self.geometry("800x300")
         self.protocol("WM_DELETE_WINDOW", lambda: self.exit(stopFunc))
 
         vscrollbar = tk.Scrollbar(self, orient = 'vertical')
@@ -71,6 +71,13 @@ class ListWindow(tk.Toplevel):
         canvas.pack(side = 'left', fill = 'both', expand = True)
         self.canvas = canvas
         canvas.bind("<Configure>", self.resize_frame)
+
+        menubar = tk.Menu(self)
+        menubar.add_cascade(label = "復原", command = self.reset)
+        self.configure(menu = menubar)
+
+    def reset(self):
+        print('reset')
 
     def resize_frame(self, e):
         self.canvas.itemconfig(self._frame_id, height = e.height, width = e.width)
