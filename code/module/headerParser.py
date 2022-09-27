@@ -4,7 +4,7 @@ def parsestr(reply):
     response = {}
     body = ''
     isInHeader = True
-    for i in range(1,len(line)-1):
+    for i in range(1,len(line)-2):
         if isInHeader:
             if line[i] == "":
                 isInHeader = False
