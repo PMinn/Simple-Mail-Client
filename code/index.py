@@ -7,7 +7,6 @@
 import sys
 import socket
 from getpass import getpass
-import string
 import module.tk as tk
 
 PORT = 110
@@ -83,53 +82,63 @@ def method2(cSocket):
 def sendQuit(cSocket):
     cmd = 'QUIT\r\n'
     cSocket.send(cmd.encode('utf-8'))
+    print('send quit')
     
 def deleteMail(cSocket,messageId):
     cmd = 'DELE '+messageId+'\r\n'
     cSocket.send(cmd.encode('utf-8'))
     reply = cSocket.recv(BUFF_SIZE).decode('utf-8')
     print('Receive message: %s' % reply)
-    if(reply[0] != '+'):
+    if reply[0] == '+':
         return True
     else:
         return False
     
 def getHeader(cSocket,messageId):
-    cmd = 'TOP ' + messageId + ' 0\r\n'
+    cmd = 'TOP ' + messageId + ' 1\r\n'
     cSocket.send(cmd.encode('utf-8'))
     reply = cSocket.recv(BUFF_SIZE).decode('utf-8')
-    print('Receive message: %s' % reply)
+    #print('Receive message: %s' % reply)
     if reply[0] == '+':
         # Count mails
-        #line = ParseMessage(reply)
-        #print(line[6])
-        '''
-        line = reply.split(str='\n', num=string.count(str))
-        print('line:'+str(len(line)))
-        '''
-        return True
+       # line = ParseMessage(reply)
+        line = reply.split("\r\n")
+        return True, line
     else:
-        return False
+        return False, []
+    
 def start(serverIP, account, password):
     cSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     print('Connecting to %s port %s' % (serverIP, PORT))
     cSocket.connect((serverIP, PORT))
+    window = tk.createToplevel(account)
+    tk.mailboxInit(window, lambda: sendQuit(cSocket))
     pop3_init(cSocket)
-    window = tk.createToplevel()
-    tk.loginAppendQuit(window,lambda:sendQuit(cSocket))
     try:
-        isSuccess, numberOfMails = method2(cSocket)
+        sendUser(cSocket,account)
+        sendPassword(cSocket,password)
+#        method1(cSocket)
+        isSuccess ,numberOfMails = method2(cSocket)
         for i in range(numberOfMails):
-            getHeader(cSocket, i)
+            isSuccess, header = getHeader(cSocket,str(i+1))
+            print('date: ' + header[6].split('Date:')[1])
+            print('from: ' + header[7].split('From:')[1])
+            print('subject: ' + header[9].split('Subject:')[1])
+            print('inner: ' + header[17])
+            print('-------------------')
+            print(header)
+            li = tk.createFrame(window)
+            tk.maillistInit(li, header[7].split('From:')[1],header[9].split('Subject:')[1],header[17])
+#        deleteMail(cSocket,str(1))
     except socket.error as e:
         print('Socket error: %s' % str(e))
     except Exception as e:
         print('Other exception: %s' % str(e))
-
+        
 def main():
-    if(len(sys.argv) < 2):
-        print("Usage: python3 pop3client.py ServerIP")
-        return
+#    if(len(sys.argv) < 2):
+#        print("Usage: python3 pop3client.py ServerIP")
+#        return
     baseLoginWindow = tk.createTk()
     tk.loginInit(baseLoginWindow, start)
     #window = tk.createToplevel()
