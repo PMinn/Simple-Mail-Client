@@ -70,24 +70,21 @@ def deleteMail(cSocket, messageId):
     else:
         return False
     
-def getHeader(cSocket,messageId):
+def getHeader(cSocket, messageId):
     cmd = 'TOP ' + messageId + ' 1\r\n'
     cSocket.send(cmd.encode('utf-8'))
     reply = cSocket.recv(BUFF_SIZE).decode('utf-8')
-    print('Receive message: %s' % reply)
     if reply[0] == '+':
-        headers, body = hp.parsestr(reply)
-        print("headers-----")
-        print(headers)
-        print("body-----")
-        print(body)
-        line = reply.split("\r\n")
-        return True, line
+        return True, reply
     else:
-        return False, []
+        return False, ""
 
+def preview(cSocket, messageId):
+    isSuccess, header = getHeader(cSocket, messageId)
+    return hp.parsestr(header)
+    
 def open_mailDetail(cSocket, subject):
-    window = tk.mailWindow("ttttest")
+    window = tk.MailWindow("ttttest")
 
 def start(serverIP, account, password):
     cSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -99,19 +96,11 @@ def start(serverIP, account, password):
     try:
         sendUser(cSocket,account)
         sendPassword(cSocket,password)
-        isSuccess ,numberOfMails = sendList(cSocket)
+        isSuccess, numberOfMails = sendList(cSocket)
         for i in range(numberOfMails):
-            isSuccess, header = getHeader(cSocket,str(i+1))
-            '''
-            print('date: ' + header[6].split('Date:')[1])
-            print('from: ' + header[7].split('From:')[1])
-            print('subject: ' + header[9].split('Subject:')[1])
-            print('inner: ' + header[17])
-            print('-------------------')
-            print(header)
-            '''
+            headers, body = preview(cSocket, str(i+1))
             li = tk.createFrame(window)
-            tk.maillistInit(li, header[7].split('From:')[1].split('@')[0], header[9].split('Subject:')[1], header[17], open_mailDetail, cSocket)
+            tk.maillistInit(li, headers['From'].split('@')[0], headers['Subject'], body, open_mailDetail, cSocket)
 #        deleteMail(cSocket,str(1))
     except socket.error as e:
         print('Socket error: %s' % str(e))
