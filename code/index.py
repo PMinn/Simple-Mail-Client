@@ -111,7 +111,7 @@ def main():
 #    if(len(sys.argv) < 2):
 #        print("Usage: python3 pop3client.py ServerIP")
 #        return
-    baseLoginWindow = tk.loginWindow(start)
+    baseLoginWindow = tk.LoginWindow(start)
     #window = tk.createToplevel()
     baseLoginWindow.mainloop()
     return 
