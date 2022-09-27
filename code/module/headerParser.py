@@ -16,5 +16,7 @@ def parsestr(reply):
             else:
                 response[lastKey] += line[i]
         else:
-            body += line[i] + '\r\n'
+            body += line[i]
+            if i != len(line)-3:
+                body += '\r\n'
     return response, body
