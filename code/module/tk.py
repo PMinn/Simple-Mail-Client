@@ -63,7 +63,7 @@ def createFrame(window):
     frame.pack(fill = 'x')
     return frame
 
-class loginWindow(tk.Tk):
+class LoginWindow(tk.Tk):
     def __init__(self, start):
         super().__init__()
         self.title('Login')
@@ -93,7 +93,9 @@ class loginWindow(tk.Tk):
         start_btn = tk.Button(self, text='連線', command = lambda: start(ipEntry.get(), accountEntry.get(), passEntry.get()))
         start_btn.grid(row = 3, column = 0,columnspan = 2, pady = 20, sticky = "WENS")
 
-class mailWindow(tk.Toplevel):
+class ListWindow():
+
+class MailWindow(tk.Toplevel):
     def __init__(self,headers):
         super().__init__()
         self.headers = headers
