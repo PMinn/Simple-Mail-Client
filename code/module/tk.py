@@ -1,4 +1,5 @@
 import tkinter as tk
+from datetime import datetime
 
 class LoginWindow(tk.Tk):
     def __init__(self, start):
@@ -34,19 +35,23 @@ class LoginWindow(tk.Tk):
 class MailList(tk.Frame):
     def __init__(self, indexMail, window, cSocket, headers, body, clickFunc):
         super().__init__(window, bg = "#f2f6fc")
-        super().pack(fill = 'x', side = 'top')
+        super().pack(fill = 'x', side = 'top', padx = 20, pady = 3)
         fromLabel = tk.Label(self, text = headers['From'].split('@')[0], bg = "#f2f6fc", font = 'bold')
-        fromLabel.pack(side = 'left')
+        fromLabel.pack(side = 'left', padx = 3)
         fromLabel.bind("<Button-1>", lambda e: clickFunc(cSocket, indexMail))
 
         subjectLabel = tk.Label(self, text = headers['Subject'], bg = "#f2f6fc", font = 'bold')
-        subjectLabel.pack(side = 'left')
+        subjectLabel.pack(side = 'left', padx = 3)
         subjectLabel.bind("<Button-1>", lambda e: clickFunc(cSocket, indexMail))
         
         if body != '':
             innerLabel = tk.Label(self, text = f" - {body}", fg='#5f6368', bg = "#f2f6fc")
             innerLabel.pack(side = 'left')
             innerLabel.bind("<Button-1>", lambda e: clickFunc(cSocket, indexMail))
+        
+        dateLabel = tk.Label(self, text = datetime.strptime(headers['Date'], '%a, %d %b %Y %H:%M:%S +0800').strftime("%m月%d日 %H:%M"), bg = "#f2f6fc", font = 'bold')
+        dateLabel.pack(side = 'right', padx = 3)
+        dateLabel.bind("<Button-1>", lambda e: clickFunc(cSocket, indexMail))
 
 
 class ListWindow(tk.Toplevel):
@@ -56,8 +61,22 @@ class ListWindow(tk.Toplevel):
         self.geometry("400x300")
         self.protocol("WM_DELETE_WINDOW", lambda: self.exit(stopFunc))
 
+        vscrollbar = tk.Scrollbar(self, orient = 'vertical')
+        vscrollbar.pack(fill = 'y', side = 'right', expand = False)
+        canvas = tk.Canvas(self, bd = 0, highlightthickness = 0, yscrollcommand = vscrollbar.set)
+        vscrollbar.config(command = canvas.yview)
+        self.frame = tk.Frame(canvas, bg = "#f2f6fc")
+        canvas.config(yscrollcommand = vscrollbar.set)
+        self._frame_id = canvas.create_window(0, 0, window = self.frame, anchor = 'nw')
+        canvas.pack(side = 'left', fill = 'both', expand = True)
+        self.canvas = canvas
+        canvas.bind("<Configure>", self.resize_frame)
+
+    def resize_frame(self, e):
+        self.canvas.itemconfig(self._frame_id, height = e.height, width = e.width)
+
     def append(self, cSocket, indexMail, headers, body, clickFunc):
-        li = MailList(indexMail, self, cSocket, headers, body, clickFunc)
+        MailList(indexMail, self.frame, cSocket, headers, body, clickFunc)
 
     def exit(self, stopFunc):
         stopFunc()
@@ -96,7 +115,7 @@ class MailWindow(tk.Toplevel):
         dateKeyLabel = tk.Label(self, text = '日期：', justify = 'left')
         dateKeyLabel.grid(row = 3, column = 0, sticky = 'w', padx = (20, 0))
 
-        dateValueLabel = tk.Label(self, text = headers['Date'], justify = 'left')
+        dateValueLabel = tk.Label(self, text = datetime.strptime(headers['Date'], '%a, %d %b %Y %H:%M:%S +0800').strftime("%Y年%m月%d日 %H:%M"), justify = 'left')
         dateValueLabel.grid(row = 3, column = 1, sticky = 'w')
 
         subjectKeyLabel = tk.Label(self, text = '主旨：', justify = 'left')
@@ -119,4 +138,4 @@ class MailWindow(tk.Toplevel):
         text.config(state = 'disabled')
         text.pack(side = 'bottom', fill = 'both', expand = True)
         scrollbar.config(command = text.yview)
-        frame.grid(row = 6, column = 0, columnspan = 2, sticky = 'nsew', pady = (0, 40), padx = 20)
+        frame.grid(row = 6, column = 0, columnspan = 2, sticky = 'nsew', pady = (40, 5), padx = 20)

@@ -123,6 +123,6 @@ def start(serverIP, account, password):
 def main():
     loginWindow = tk.LoginWindow(start)
     loginWindow.mainloop()
-
+    
 if __name__ == '__main__':
-	main()
+    main()
