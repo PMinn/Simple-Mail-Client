@@ -33,12 +33,10 @@ def loginInit(window, start):
 
 def closeMailbox(window, stopFunc):
     stopFunc()
-    window.destroy() 
+    window.destroy()
 
 def mailboxInit(window, stopFunc):
-    start_btn = tk.Button(window, text='斷線', command = lambda: closeMailbox(window, stopFunc))
-    start_btn.pack()
-
+    window.protocol("WM_DELETE_WINDOW", lambda: closeMailbox(window, stopFunc))
 
 def createToplevel(title):
     window = tk.Toplevel()
@@ -46,15 +44,19 @@ def createToplevel(title):
     window.geometry("400x300")
     return window
 
-def maillistInit(frame, fromMail, subject, inner):
-    fromLabel = tk.Label(frame, text = fromMail, bg = "#f2f6fc")
+def maillistInit(frame, fromMail, subject, inner, open_mailDetail, cSocket):
+    fromLabel = tk.Label(frame, text = fromMail, bg = "#f2f6fc", font = 'bold')
     fromLabel.pack(side = 'left')
-    
-    subjectLabel = tk.Label(frame, text = subject, bg = "#f2f6fc")
+    fromLabel.bind("<Button-1>",lambda e: open_mailDetail(cSocket, subject))
+
+    subjectLabel = tk.Label(frame, text = subject, bg = "#f2f6fc", font = 'bold')
     subjectLabel.pack(side = 'left')
+    subjectLabel.bind("<Button-1>", lambda e: open_mailDetail(cSocket, subject))
+    
     if inner != '':
         innerLabel = tk.Label(frame, text = f" - {inner}", fg='#5f6368', bg = "#f2f6fc")
         innerLabel.pack(side = 'left')
+        innerLabel.bind("<Button-1>", lambda e: open_mailDetail(cSocket, subject))
     
 def createFrame(window):
     frame = tk.Frame(window, bg = "#f2f6fc")
