@@ -12,22 +12,10 @@ import module.tk as tk
 PORT = 110
 BUFF_SIZE = 1024			# Receive buffer size
 
-def ParseMessage(msg):
-	line = []
-	newstring = ''
-	for i in range(len(msg)):
-		if(msg[i] == '\n'):
-			line.append(newstring)
-			newstring = ''
-		else:
-			newstring += msg[i]
-	return line
-# end ParseMessage
-
 def pop3_init(cSocket):
     reply = cSocket.recv(BUFF_SIZE).decode('utf-8')
     print('Receive message: %s' % reply)
-    if(reply[0] != '+'):
+    if reply[0] == '+':
         return True
     else:
         return False
@@ -37,7 +25,7 @@ def sendUser(cSocket,name):
     cSocket.send(cmd.encode('utf-8'))
     reply = cSocket.recv(BUFF_SIZE).decode('utf-8')
     print('Receive message: %s' % reply)
-    if(reply[0] != '+'):
+    if reply[0] == '+':
         return True
     else:
         return False
@@ -47,7 +35,7 @@ def sendPassword(cSocket,password):
     cSocket.send(cmd.encode('utf-8'))
     reply = cSocket.recv(BUFF_SIZE).decode('utf-8')
     print('Receive message: %s' % reply)
-    if(reply[0] != '+'):
+    if reply[0] == '+':
         return True
     else:
         return False
@@ -70,7 +58,7 @@ def sendQuit(cSocket):
     cSocket.send(cmd.encode('utf-8'))
     print('send quit')
     
-def deleteMail(cSocket,messageId):
+def deleteMail(cSocket, messageId):
     cmd = 'DELE '+messageId+'\r\n'
     cSocket.send(cmd.encode('utf-8'))
     reply = cSocket.recv(BUFF_SIZE).decode('utf-8')
@@ -86,15 +74,13 @@ def getHeader(cSocket,messageId):
     reply = cSocket.recv(BUFF_SIZE).decode('utf-8')
     #print('Receive message: %s' % reply)
     if reply[0] == '+':
-        # Count mails
-       # line = ParseMessage(reply)
         line = reply.split("\r\n")
         return True, line
     else:
         return False, []
 
 def open_mailDetail(cSocket, subject):
-    window = tk.createToplevel(subject)
+    window = tk.mailWindow("ttttest")
 
 def start(serverIP, account, password):
     cSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -116,7 +102,7 @@ def start(serverIP, account, password):
             print('-------------------')
             print(header)
             li = tk.createFrame(window)
-            tk.maillistInit(li, header[7].split('From:')[1].split('@')[0],header[9].split('Subject:')[1],header[17],open_mailDetail,cSocket)
+            tk.maillistInit(li, header[7].split('From:')[1].split('@')[0], header[9].split('Subject:')[1], header[17], open_mailDetail, cSocket)
 #        deleteMail(cSocket,str(1))
     except socket.error as e:
         print('Socket error: %s' % str(e))
@@ -128,6 +114,7 @@ def main():
 #        print("Usage: python3 pop3client.py ServerIP")
 #        return
     baseLoginWindow = tk.createTk()
+    window = tk.mailWindow("ttttest")
     tk.loginInit(baseLoginWindow, start)
     #window = tk.createToplevel()
     baseLoginWindow.mainloop()
