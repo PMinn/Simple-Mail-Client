@@ -20,27 +20,43 @@ def loginInit(window, start):
     accountLabel.grid(row = 1, column = 0)
     accountEntry = tk.Entry(window)
     accountEntry.grid(row = 1, column = 1)
-    accountEntry.insert(0, 'iecs10')
+    accountEntry.insert(0, 'iecs01')
 
     passLabel = tk.Label(window ,text = "密碼")
     passLabel.grid(row = 2, column = 0)
     passEntry = tk.Entry(window)
-    passEntry.insert(0, '3bS7RWYC')
+    passEntry.insert(0, 'K4ZrAHDB')
     passEntry.grid(row = 2, column = 1)
 
-    start_btn = tk.Button(window, text='連線', font = ("Times", 11, ""), command = lambda: start(ipEntry.get(), accountEntry.get(), passEntry.get()))
+    start_btn = tk.Button(window, text='連線', command = lambda: start(ipEntry.get(), accountEntry.get(), passEntry.get()))
     start_btn.grid(row = 3, column = 0,columnspan = 2, pady = 20, sticky = "WENS")
-def loginQuit(window, quitFunc):
-    quitFunc()
-    window.destroy()
 
-def loginAppendQuit(window, quitFunc):
-    start_btn = tk.Button(window, text='關閉', font = ("Times", 11, ""), command = lambda:loginQuit(window, quitFunc))
-    #start_btn.grid(row = 3, column = 0,columnspan = 2, pady = 20, sticky = "WENS")
+def closeMailbox(window, stopFunc):
+    stopFunc()
+    window.destroy() 
+
+def mailboxInit(window, stopFunc):
+    start_btn = tk.Button(window, text='斷線', command = lambda: closeMailbox(window, stopFunc))
     start_btn.pack()
 
-def createToplevel():
+
+def createToplevel(title):
     window = tk.Toplevel()
-    window.title('Login')
+    window.title(title)
     window.geometry("400x300")
     return window
+
+def maillistInit(frame, fromMail, subject, inner):
+    fromLabel = tk.Label(frame, text = fromMail, bg = "#f2f6fc")
+    fromLabel.pack(side = 'left')
+    
+    subjectLabel = tk.Label(frame, text = subject, bg = "#f2f6fc")
+    subjectLabel.pack(side = 'left')
+    if inner != '':
+        innerLabel = tk.Label(frame, text = f" - {inner}", fg='#5f6368', bg = "#f2f6fc")
+        innerLabel.pack(side = 'left')
+    
+def createFrame(window):
+    frame = tk.Frame(window, bg = "#f2f6fc")
+    frame.pack(fill = 'x')
+    return frame
