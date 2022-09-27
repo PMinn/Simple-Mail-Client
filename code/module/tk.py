@@ -63,6 +63,36 @@ def createFrame(window):
     frame.pack(fill = 'x')
     return frame
 
+class loginWindow(tk.Tk):
+    def __init__(self, start):
+        super().__init__()
+        self.title('Login')
+        self.geometry("400x300")
+
+        self.grid_columnconfigure(0, weight = 1)
+        self.grid_columnconfigure(1, weight = 2)
+
+        ipLabel = tk.Label(self ,text = "server IP")
+        ipLabel.grid(row = 0, column = 0)
+        ipEntry = tk.Entry(self)
+        ipEntry.grid(row = 0, column = 1)
+        ipEntry.insert(0, '140.134.135.41')
+
+        accountLabel = tk.Label(self ,text = "帳號")
+        accountLabel.grid(row = 1, column = 0)
+        accountEntry = tk.Entry(self)
+        accountEntry.grid(row = 1, column = 1)
+        accountEntry.insert(0, 'iecs01')
+
+        passLabel = tk.Label(self ,text = "密碼")
+        passLabel.grid(row = 2, column = 0)
+        passEntry = tk.Entry(self)
+        passEntry.insert(0, 'K4ZrAHDB')
+        passEntry.grid(row = 2, column = 1)
+
+        start_btn = tk.Button(self, text='連線', command = lambda: start(ipEntry.get(), accountEntry.get(), passEntry.get()))
+        start_btn.grid(row = 3, column = 0,columnspan = 2, pady = 20, sticky = "WENS")
+
 class mailWindow(tk.Toplevel):
     def __init__(self,headers):
         super().__init__()
