@@ -84,14 +84,16 @@ def preview(cSocket, messageId):
     return hp.parsestr(header)
     
 def open_mailDetail(cSocket, subject):
+    print(cSocket)
+    print(subject)
     window = tk.MailWindow("ttttest")
 
 def start(serverIP, account, password):
     cSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     print('Connecting to %s port %s' % (serverIP, PORT))
     cSocket.connect((serverIP, PORT))
-    window = tk.createToplevel(account)
-    tk.mailboxInit(window, lambda: sendQuit(cSocket))
+    listWindow = tk.ListWindow(account, lambda: sendQuit(cSocket))
+    
     pop3_init(cSocket)
     try:
         sendUser(cSocket,account)
@@ -99,8 +101,12 @@ def start(serverIP, account, password):
         isSuccess, numberOfMails = sendList(cSocket)
         for i in range(numberOfMails):
             headers, body = preview(cSocket, str(i+1))
-            li = tk.createFrame(window)
-            tk.maillistInit(li, headers['From'].split('@')[0], headers['Subject'], body, open_mailDetail, cSocket)
+            #li = tk.createFrame(listWindow)
+            #li = tk.MailList(i+1, listWindow, cSocket, headers, body, open_mailDetail)
+            listWindow.append(cSocket, i+1, headers, body, open_mailDetail)
+
+            #tk.MailList(listWindow, cSocket, headers, body)
+            #tk.maillistInit(li, headers['From'].split('@')[0], headers['Subject'], body, open_mailDetail, cSocket)
 #        deleteMail(cSocket,str(1))
     except socket.error as e:
         print('Socket error: %s' % str(e))
@@ -108,8 +114,8 @@ def start(serverIP, account, password):
         print('Other exception: %s' % str(e))
         
 def main():
-    baseLoginWindow = tk.LoginWindow(start)
-    baseLoginWindow.mainloop()
+    loginWindow = tk.LoginWindow(start)
+    loginWindow.mainloop()
 
 if __name__ == '__main__':
 	main()
