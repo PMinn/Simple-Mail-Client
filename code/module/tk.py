@@ -93,26 +93,31 @@ class LoginWindow(tk.Tk):
         start_btn = tk.Button(self, text='連線', command = lambda: start(ipEntry.get(), accountEntry.get(), passEntry.get()))
         start_btn.grid(row = 3, column = 0,columnspan = 2, pady = 20, sticky = "WENS")
 
-class ListWindow(tk.Toplevel):
-    def __init__(self):
-        super().__init__()
-        super().__init__()
-        self.title("111")
-        self.geometry("400x300")
-        
-    def append(fromMail, subject, inner, open_mailDetail, cSocket):
-        fromLabel = tk.Label(self, text = fromMail, bg = "#f2f6fc", font = 'bold')
+class MailList():
+    def __init__(self, window, headers, body):
+        super().__init__(window, bg = "#f2f6fc")
+        self.pack(fill = 'x')
+        fromLabel = tk.Label(self, text = headers['From'].split('@')[0], bg = "#f2f6fc", font = 'bold')
         fromLabel.pack(side = 'left')
         fromLabel.bind("<Button-1>",lambda e: open_mailDetail(cSocket, subject))
 
-        subjectLabel = tk.Label(self, text = subject, bg = "#f2f6fc", font = 'bold')
+        subjectLabel = tk.Label(self, text = headers['Subject'], bg = "#f2f6fc", font = 'bold')
         subjectLabel.pack(side = 'left')
         subjectLabel.bind("<Button-1>", lambda e: open_mailDetail(cSocket, subject))
         
-        if inner != '':
-            innerLabel = tk.Label(self, text = f" - {inner}", fg='#5f6368', bg = "#f2f6fc")
+        if body != '':
+            innerLabel = tk.Label(self, text = f" - {body}", fg='#5f6368', bg = "#f2f6fc")
             innerLabel.pack(side = 'left')
             innerLabel.bind("<Button-1>", lambda e: open_mailDetail(cSocket, subject))
+
+class ListWindow(tk.Toplevel):
+    def __init__(self, account):
+        super().__init__()
+        self.title(account)
+        self.geometry("400x300")
+    def append(headers, body):
+        li = MailList(self, headers, body)
+
 
 class MailWindow(tk.Toplevel):
     def __init__(self,headers):
