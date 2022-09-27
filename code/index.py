@@ -52,21 +52,7 @@ def sendPassword(cSocket,password):
     else:
         return False
 
-def method1(cSocket):
-    cmd = 'LIST\r\n'								# don't forget "\r\n"\
-    cSocket.send(cmd.encode('utf-8'))
-    reply = cSocket.recv(BUFF_SIZE).decode('utf-8')
-    print('Receive message: %s' % reply)
-    if(reply[0] != '+'):
-        # Count mails
-        line = ParseMessage(reply)
-        num = len(line) - 2
-        print('Mailbox has %d mails\n' % num)
-        return True
-    else:
-        return False
-
-def method2(cSocket):
+def sendList(cSocket):
     cmd = 'LIST\r\n'	
     cSocket.send(cmd.encode('utf-8'))
     reply = cSocket.recv(BUFF_SIZE).decode('utf-8')
@@ -106,7 +92,10 @@ def getHeader(cSocket,messageId):
         return True, line
     else:
         return False, []
-    
+
+def open_mailDetail(cSocket, subject):
+    window = tk.createToplevel(subject)
+
 def start(serverIP, account, password):
     cSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     print('Connecting to %s port %s' % (serverIP, PORT))
@@ -117,8 +106,7 @@ def start(serverIP, account, password):
     try:
         sendUser(cSocket,account)
         sendPassword(cSocket,password)
-#        method1(cSocket)
-        isSuccess ,numberOfMails = method2(cSocket)
+        isSuccess ,numberOfMails = sendList(cSocket)
         for i in range(numberOfMails):
             isSuccess, header = getHeader(cSocket,str(i+1))
             print('date: ' + header[6].split('Date:')[1])
@@ -128,7 +116,7 @@ def start(serverIP, account, password):
             print('-------------------')
             print(header)
             li = tk.createFrame(window)
-            tk.maillistInit(li, header[7].split('From:')[1],header[9].split('Subject:')[1],header[17])
+            tk.maillistInit(li, header[7].split('From:')[1].split('@')[0],header[9].split('Subject:')[1],header[17],open_mailDetail,cSocket)
 #        deleteMail(cSocket,str(1))
     except socket.error as e:
         print('Socket error: %s' % str(e))
