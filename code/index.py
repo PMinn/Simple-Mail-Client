@@ -70,8 +70,8 @@ def deleteMail(cSocket, messageId):
     else:
         return False
     
-def getHeader(cSocket, messageId):
-    cmd = 'TOP ' + messageId + ' 1\r\n'
+def getHeader(cSocket, messageId, preline):
+    cmd = f"TOP {str(messageId)} {str(preline)}\r\n"
     cSocket.send(cmd.encode('utf-8'))
     reply = cSocket.recv(BUFF_SIZE).decode('utf-8')
     if reply[0] == '+':
@@ -80,13 +80,24 @@ def getHeader(cSocket, messageId):
         return False, ""
 
 def preview(cSocket, messageId):
-    isSuccess, header = getHeader(cSocket, messageId)
+    isSuccess, header = getHeader(cSocket, messageId, 1)
     return hp.parsestr(header)
-    
-def open_mailDetail(cSocket, subject):
-    print(cSocket)
-    print(subject)
-    window = tk.MailWindow("ttttest")
+
+def fullMail(cSocket, messageId):
+    cmd = f"RETR {str(messageId)}\r\n"
+    cSocket.send(cmd.encode('utf-8'))
+    reply = cSocket.recv(BUFF_SIZE).decode('utf-8')
+    if reply[0] == '+':
+        return True, reply
+    else:
+        return False, ""
+
+def open_mailDetail(cSocket, messageId):
+    isSuccess, mailData = fullMail(cSocket, messageId)
+    headers, body = hp.parsestr(mailData)
+    window = tk.MailWindow(headers, body)
+    print(headers)
+    print(body)
 
 def start(serverIP, account, password):
     cSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -100,7 +111,7 @@ def start(serverIP, account, password):
         sendPassword(cSocket,password)
         isSuccess, numberOfMails = sendList(cSocket)
         for i in range(numberOfMails):
-            headers, body = preview(cSocket, str(i+1))
+            headers, body = preview(cSocket, i+1)
             listWindow.append(cSocket, i+1, headers, body, open_mailDetail)
 
 #        deleteMail(cSocket,str(1))

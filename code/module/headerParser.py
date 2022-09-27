@@ -18,5 +18,5 @@ def parsestr(reply):
         else:
             body += line[i]
             if i != len(line)-3:
-                body += '\r\n'
+                body += '\n'
     return response, body
