@@ -62,3 +62,10 @@ def createFrame(window):
     frame = tk.Frame(window, bg = "#f2f6fc")
     frame.pack(fill = 'x')
     return frame
+
+class mailWindow(tk.Toplevel):
+    def __init__(self,headers):
+        super().__init__()
+        self.headers = headers
+        self.title(headers)   	 
+        self.geometry("400x300")
