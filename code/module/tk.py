@@ -93,31 +93,41 @@ class LoginWindow(tk.Tk):
         start_btn = tk.Button(self, text='連線', command = lambda: start(ipEntry.get(), accountEntry.get(), passEntry.get()))
         start_btn.grid(row = 3, column = 0,columnspan = 2, pady = 20, sticky = "WENS")
 
-class MailList():
-    def __init__(self, window, headers, body):
+class MailList(tk.Frame):
+    def __init__(self, indexMail, window, cSocket, headers, body, clickFunc):
         super().__init__(window, bg = "#f2f6fc")
-        self.pack(fill = 'x')
+        super().pack(fill = 'x', side = 'top')
+        self.cSocket = cSocket
+        self.clickFunc = clickFunc
+        self.subject = headers['Subject']
         fromLabel = tk.Label(self, text = headers['From'].split('@')[0], bg = "#f2f6fc", font = 'bold')
         fromLabel.pack(side = 'left')
-        fromLabel.bind("<Button-1>",lambda e: open_mailDetail(cSocket, subject))
+        fromLabel.bind("<Button-1>", lambda e: clickFunc(cSocket, headers['Subject']))
 
         subjectLabel = tk.Label(self, text = headers['Subject'], bg = "#f2f6fc", font = 'bold')
         subjectLabel.pack(side = 'left')
-        subjectLabel.bind("<Button-1>", lambda e: open_mailDetail(cSocket, subject))
+        subjectLabel.bind("<Button-1>", lambda e: clickFunc(cSocket, headers['Subject']))
         
         if body != '':
             innerLabel = tk.Label(self, text = f" - {body}", fg='#5f6368', bg = "#f2f6fc")
             innerLabel.pack(side = 'left')
-            innerLabel.bind("<Button-1>", lambda e: open_mailDetail(cSocket, subject))
+            innerLabel.bind("<Button-1>", lambda e: clickFunc(cSocket, headers['Subject']))
+    def click(self):
+        self.clickFunc(self.cSocket, self.subject)
 
 class ListWindow(tk.Toplevel):
-    def __init__(self, account):
+    def __init__(self, account, stopFunc):
         super().__init__()
         self.title(account)
         self.geometry("400x300")
-    def append(headers, body):
-        li = MailList(self, headers, body)
+        self.protocol("WM_DELETE_WINDOW", lambda: self.exit(stopFunc))
 
+    def append(self, cSocket, indexMail, headers, body, clickFunc):
+        li = MailList(indexMail, self, cSocket, headers, body, clickFunc)
+
+    def exit(self, stopFunc):
+        stopFunc()
+        self.destroy()
 
 class MailWindow(tk.Toplevel):
     def __init__(self,headers):
