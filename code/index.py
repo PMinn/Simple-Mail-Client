@@ -101,12 +101,8 @@ def start(serverIP, account, password):
         isSuccess, numberOfMails = sendList(cSocket)
         for i in range(numberOfMails):
             headers, body = preview(cSocket, str(i+1))
-            #li = tk.createFrame(listWindow)
-            #li = tk.MailList(i+1, listWindow, cSocket, headers, body, open_mailDetail)
             listWindow.append(cSocket, i+1, headers, body, open_mailDetail)
 
-            #tk.MailList(listWindow, cSocket, headers, body)
-            #tk.maillistInit(li, headers['From'].split('@')[0], headers['Subject'], body, open_mailDetail, cSocket)
 #        deleteMail(cSocket,str(1))
     except socket.error as e:
         print('Socket error: %s' % str(e))
