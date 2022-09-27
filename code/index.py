@@ -8,6 +8,8 @@ import sys
 import socket
 from getpass import getpass
 import module.tk as tk
+import module.headerParser as hp
+
 
 PORT = 110
 BUFF_SIZE = 1024			# Receive buffer size
@@ -72,8 +74,11 @@ def getHeader(cSocket,messageId):
     cmd = 'TOP ' + messageId + ' 1\r\n'
     cSocket.send(cmd.encode('utf-8'))
     reply = cSocket.recv(BUFF_SIZE).decode('utf-8')
-    #print('Receive message: %s' % reply)
+    print('Receive message: %s' % reply)
     if reply[0] == '+':
+        headers = hp.parsestr(reply)
+        print("mail-----")
+        print(headers)
         line = reply.split("\r\n")
         return True, line
     else:
@@ -95,12 +100,14 @@ def start(serverIP, account, password):
         isSuccess ,numberOfMails = sendList(cSocket)
         for i in range(numberOfMails):
             isSuccess, header = getHeader(cSocket,str(i+1))
+            '''
             print('date: ' + header[6].split('Date:')[1])
             print('from: ' + header[7].split('From:')[1])
             print('subject: ' + header[9].split('Subject:')[1])
             print('inner: ' + header[17])
             print('-------------------')
             print(header)
+            '''
             li = tk.createFrame(window)
             tk.maillistInit(li, header[7].split('From:')[1].split('@')[0], header[9].split('Subject:')[1], header[17], open_mailDetail, cSocket)
 #        deleteMail(cSocket,str(1))
@@ -114,7 +121,6 @@ def main():
 #        print("Usage: python3 pop3client.py ServerIP")
 #        return
     baseLoginWindow = tk.createTk()
-    window = tk.mailWindow("ttttest")
     tk.loginInit(baseLoginWindow, start)
     #window = tk.createToplevel()
     baseLoginWindow.mainloop()
