@@ -108,43 +108,8 @@ def start(serverIP, account, password):
         print('Other exception: %s' % str(e))
         
 def main():
-#    if(len(sys.argv) < 2):
-#        print("Usage: python3 pop3client.py ServerIP")
-#        return
     baseLoginWindow = tk.LoginWindow(start)
-    #window = tk.createToplevel()
     baseLoginWindow.mainloop()
-    return 
-	# Get server IP
-    serverIP = socket.gethostbyname(sys.argv[1])
-	
-	# Get username & password
-    name = input('Username: ')
-    password = getpass('Password: ')
-		
-	# Create a TCP client socket
-    cSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    print('Connecting to %s port %s' % (serverIP, PORT))
-    cSocket.connect((serverIP, PORT))
-    
-    pop3_init(cSocket)
-    try:
-        sendUser(cSocket,name)
-        sendPassword(cSocket,password)
-        method1(cSocket)
-#        method2(cSocket)
-        getHeader(cSocket,str(1))
-#        deleteMail(cSocket,str(1))
-        sendQuit(cSocket)
-    except socket.error as e:
-        print('Socket error: %s' % str(e))
-    except Exception as e:
-        print('Other exception: %s' % str(e))
-
-    print('Closing connection.')
-    cSocket.close()
-# end of main
-
 
 if __name__ == '__main__':
 	main()
