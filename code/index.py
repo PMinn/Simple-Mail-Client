@@ -76,9 +76,11 @@ def getHeader(cSocket,messageId):
     reply = cSocket.recv(BUFF_SIZE).decode('utf-8')
     print('Receive message: %s' % reply)
     if reply[0] == '+':
-        headers = hp.parsestr(reply)
-        print("mail-----")
+        headers, body = hp.parsestr(reply)
+        print("headers-----")
         print(headers)
+        print("body-----")
+        print(body)
         line = reply.split("\r\n")
         return True, line
     else:
