@@ -67,8 +67,21 @@ def sendQuit():
     except Exception as e:
         print('Other exception: %s' % str(e))
 
+def sendRset():
+    try:
+        cmd = 'RSET\r\n'
+        cSocket.send(cmd.encode('utf-8'))
+        reply = cSocket.recv(BUFF_SIZE).decode('utf-8')
+        print('Receive message: %s' % reply)
+        if reply[0] != '+':
+            raise Exception(reply)
+    except socket.error as e:
+        print('Socket error: %s' % str(e))
+    except Exception as e:
+        print('Other exception: %s' % str(e))
+
 def deleteMail(messageId):
-    cmd = 'DELE '+messageId+'\r\n'
+    cmd = f'DELE {str(messageId)}\r\n'
     cSocket.send(cmd.encode('utf-8'))
     reply = cSocket.recv(BUFF_SIZE).decode('utf-8')
     print('Receive message: %s' % reply)
@@ -80,17 +93,24 @@ def deleteMail(messageId):
 def getHeader(messageId, preline):
     cmd = f"TOP {str(messageId)} {str(preline)}\r\n"
     cSocket.send(cmd.encode('utf-8'))
+    '''
     reply = cSocket.recv(BUFF_SIZE).decode('utf-8')
     if reply[0] == '+':
         return True, reply
     else:
         raise Exception(reply)
         return False, ""
+    '''
+
+def receiveFunc():
+    return cSocket.recv(BUFF_SIZE).decode('utf-8')
 
 def preview(messageId):
     try:
-        isSuccess, header = getHeader(messageId, 1)
-        return hp.parsestr(header)
+        #isSuccess, header = 
+        getHeader(messageId, 1)
+        #return hp.parsestr(header)
+        return hp.Mail(receiveFunc)
     except socket.error as e:
         print('Socket error: %s' % str(e))
     except Exception as e:
@@ -99,32 +119,42 @@ def preview(messageId):
 def fullMail(cSocket, messageId):
     cmd = f"RETR {str(messageId)}\r\n"
     cSocket.send(cmd.encode('utf-8'))
+    '''
     reply = cSocket.recv(BUFF_SIZE).decode('utf-8')
+    print('-----------------------mail---------------------')
+    print(reply)
+    print('---------------------end mail-------------------')
     if reply[0] == '+':
         return True, reply
     else:
         raise Exception(reply)
         return False, ""
+        '''
 
-def open_mailDetail(messageId):
+def open_mailDetail(listWindow, messageId):
     try:
-        isSuccess, mailData = fullMail(cSocket, messageId)
-        headers, body = hp.parsestr(mailData)
-        window = tk.MailWindow(headers, body)
-        print(headers)
-        print(body)
+        #isSuccess, mailData = 
+        fullMail(cSocket, messageId)
+        mail = hp.Mail(receiveFunc)
+        #headers, body, bodyLine = hp.parsestr(mailData)
+        #reply = cSocket.recv(BUFF_SIZE).decode('utf-8')
+        #print('['+  mail.headers['Lines'] +']: '+ str(mail.bodyLine))
+        #print(reply)
+        mailWindow = tk.MailWindow(mail.headers, mail.body)
+        print(mail.headers)
+        print(mail.body)
     except socket.error as e:
         print('Socket error: %s' % str(e))
-        tk.Dialog(window, str(e))
+        tk.Dialog(listWindow, str(e))
     except Exception as e:
         print('Other exception: %s' % str(e))
-        tk.Dialog(window, str(e))
+        tk.Dialog(listWindow, str(e))
 
 def mailList_render(listWindow):
     isSuccess, numberOfMails = sendList()
     for i in range(numberOfMails):
-        headers, body = preview(i+1)
-        listWindow.append(i+1, headers, body, open_mailDetail)
+        mailPreview = preview(i + 1)
+        listWindow.append(i + 1, mailPreview.headers, mailPreview.body, open_mailDetail, deleteMail)
 
 def start(loginWindow, serverIP, account, password):
     print('Connecting to %s port %s' % (serverIP, PORT))
@@ -134,7 +164,7 @@ def start(loginWindow, serverIP, account, password):
     try:
         sendUser(account)
         sendPassword(password)
-        listWindow = tk.ListWindow(account, mailList_render, sendQuit)
+        listWindow = tk.ListWindow(account, mailList_render, sendQuit, sendRset)
         mailList_render(listWindow)
 
 #        deleteMail(cSocket,str(1))
