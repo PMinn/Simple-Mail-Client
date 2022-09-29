@@ -121,7 +121,7 @@ def mailList_render(listWindow):
     isSuccess, numberOfMails = sendList()
     for i in range(numberOfMails):
         headers, body = preview(i+1)
-        listWindow.append(cSocket, i+1, headers, body, open_mailDetail)
+        listWindow.append(i+1, headers, body, open_mailDetail)
 
 def start(loginWindow, serverIP, account, password):
     print('Connecting to %s port %s' % (serverIP, PORT))
@@ -131,7 +131,7 @@ def start(loginWindow, serverIP, account, password):
     try:
         sendUser(account)
         sendPassword(password)
-        listWindow = tk.ListWindow(account, sendQuit)
+        listWindow = tk.ListWindow(account, mailList_render, sendQuit)
         mailList_render(listWindow)
 
 #        deleteMail(cSocket,str(1))
@@ -139,10 +139,12 @@ def start(loginWindow, serverIP, account, password):
         print('Socket error: %s' % str(e))
         tk.Dialog(loginWindow, str(e))
         sendQuit()
+        cSocket.close()
     except Exception as e:
         print('Other exception: %s' % str(e))
         tk.Dialog(loginWindow, str(e))
         sendQuit()
+        cSocket.close()
         
 def main():
     loginWindow = tk.LoginWindow(start)

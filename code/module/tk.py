@@ -34,30 +34,31 @@ class LoginWindow(tk.Tk):
 
 
 class MailList(tk.Frame):
-    def __init__(self, indexMail, window, cSocket, headers, body, clickFunc):
+    def __init__(self, indexMail, window, headers, body, clickFunc):
         super().__init__(window, bg = "#f2f6fc")
         super().pack(fill = 'x', side = 'top', padx = 20, pady = 3)
         fromLabel = tk.Label(self, text = headers['From'].split('@')[0], bg = "#f2f6fc", font = 'bold')
         fromLabel.pack(side = 'left', padx = 3)
-        fromLabel.bind("<Button-1>", lambda e: clickFunc(cSocket, indexMail))
+        fromLabel.bind("<Button-1>", lambda e: clickFunc(indexMail))
 
         subjectLabel = tk.Label(self, text = headers['Subject'], bg = "#f2f6fc", font = 'bold')
         subjectLabel.pack(side = 'left', padx = 3)
-        subjectLabel.bind("<Button-1>", lambda e: clickFunc(cSocket, indexMail))
+        subjectLabel.bind("<Button-1>", lambda e: clickFunc(indexMail))
         
         if body != '':
             innerLabel = tk.Label(self, text = f" - {body}", fg='#5f6368', bg = "#f2f6fc")
             innerLabel.pack(side = 'left')
-            innerLabel.bind("<Button-1>", lambda e: clickFunc(cSocket, indexMail))
+            innerLabel.bind("<Button-1>", lambda e: clickFunc(indexMail))
         
         dateLabel = tk.Label(self, text = datetime.strptime(headers['Date'], '%a, %d %b %Y %H:%M:%S +0800').strftime("%m月%d日 %H:%M"), bg = "#f2f6fc", font = 'bold')
         dateLabel.pack(side = 'right', padx = 3)
-        dateLabel.bind("<Button-1>", lambda e: clickFunc(cSocket, indexMail))
+        dateLabel.bind("<Button-1>", lambda e: clickFunc(indexMail))
 
 
 class ListWindow(tk.Toplevel):
-    def __init__(self, account, stopFunc):
+    def __init__(self, account, render, stopFunc):
         super().__init__()
+        self.render = render
         self.title(account)
         self.geometry("800x300")
         self.protocol("WM_DELETE_WINDOW", lambda: self.exit(stopFunc))
@@ -80,13 +81,14 @@ class ListWindow(tk.Toplevel):
     def reset(self):
         for children in self.frame.winfo_children():
             children.destroy()
+        self.render(self)
         print('reset')
 
     def resize_frame(self, e):
         self.canvas.itemconfig(self._frame_id, height = e.height, width = e.width)
 
-    def append(self, cSocket, indexMail, headers, body, clickFunc):
-        MailList(indexMail, self.frame, cSocket, headers, body, clickFunc)
+    def append(self, indexMail, headers, body, clickFunc):
+        MailList(indexMail, self.frame, headers, body, clickFunc)
 
     def exit(self, stopFunc):
         stopFunc()
