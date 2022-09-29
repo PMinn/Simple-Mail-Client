@@ -150,7 +150,7 @@ class MailWindow(tk.Toplevel):
         text.config(state = 'disabled')
         text.pack(side = 'bottom', fill = 'both', expand = True)
         scrollbar.config(command = text.yview)
-        frame.grid(row = 6, column = 0, columnspan = 2, sticky = 'nsew', pady = (40, 5), padx = 20)
+        frame.grid(row = 6, column = 0, columnspan = 2, sticky = 'nsew', pady = (40, 20), padx = 20)
 
 
 

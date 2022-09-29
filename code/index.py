@@ -55,9 +55,12 @@ def sendList():
         return False, 0
     
 def sendQuit():
+    global cSocket
     try:
         cmd = 'QUIT\r\n'
         cSocket.send(cmd.encode('utf-8'))
+        cSocket.close()
+        cSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         print('send quit')
     except socket.error as e:
         print('Socket error: %s' % str(e))
@@ -139,12 +142,10 @@ def start(loginWindow, serverIP, account, password):
         print('Socket error: %s' % str(e))
         tk.Dialog(loginWindow, str(e))
         sendQuit()
-        cSocket.close()
     except Exception as e:
         print('Other exception: %s' % str(e))
         tk.Dialog(loginWindow, str(e))
         sendQuit()
-        cSocket.close()
         
 def main():
     loginWindow = tk.LoginWindow(start)
