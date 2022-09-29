@@ -14,7 +14,9 @@ import module.headerParser as hp
 PORT = 110
 BUFF_SIZE = 1024
 
-def pop3_init(cSocket):
+cSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+def pop3_init():
     reply = cSocket.recv(BUFF_SIZE).decode('utf-8')
     print('Receive message: %s' % reply)
     if reply[0] == '+':
@@ -22,7 +24,7 @@ def pop3_init(cSocket):
     else:
         return False
     
-def sendUser(cSocket,name):
+def sendUser(name):
     cmd = f'USER {name}\r\n'
     cSocket.send(cmd.encode('utf-8'))
     reply = cSocket.recv(BUFF_SIZE).decode('utf-8')
@@ -30,7 +32,7 @@ def sendUser(cSocket,name):
     if reply[0] != '+':
         raise Exception(reply)
 
-def sendPassword(cSocket,password):
+def sendPassword(password):
     cmd = f'PASS {password}\r\n'	# don't forget "\r\n"\
     cSocket.send(cmd.encode('utf-8'))
     reply = cSocket.recv(BUFF_SIZE).decode('utf-8')
@@ -38,7 +40,7 @@ def sendPassword(cSocket,password):
     if reply[0] != '+':
         raise Exception(reply)
 
-def sendList(cSocket):
+def sendList():
     cmd = 'LIST\r\n'	
     cSocket.send(cmd.encode('utf-8'))
     reply = cSocket.recv(BUFF_SIZE).decode('utf-8')
@@ -52,7 +54,7 @@ def sendList(cSocket):
         raise Exception(reply)
         return False, 0
     
-def sendQuit(cSocket):
+def sendQuit():
     try:
         cmd = 'QUIT\r\n'
         cSocket.send(cmd.encode('utf-8'))
@@ -62,7 +64,7 @@ def sendQuit(cSocket):
     except Exception as e:
         print('Other exception: %s' % str(e))
 
-def deleteMail(cSocket, messageId):
+def deleteMail(messageId):
     cmd = 'DELE '+messageId+'\r\n'
     cSocket.send(cmd.encode('utf-8'))
     reply = cSocket.recv(BUFF_SIZE).decode('utf-8')
@@ -72,7 +74,7 @@ def deleteMail(cSocket, messageId):
     else:
         return False
     
-def getHeader(cSocket, messageId, preline):
+def getHeader(messageId, preline):
     cmd = f"TOP {str(messageId)} {str(preline)}\r\n"
     cSocket.send(cmd.encode('utf-8'))
     reply = cSocket.recv(BUFF_SIZE).decode('utf-8')
@@ -82,9 +84,9 @@ def getHeader(cSocket, messageId, preline):
         raise Exception(reply)
         return False, ""
 
-def preview(cSocket, messageId):
+def preview(messageId):
     try:
-        isSuccess, header = getHeader(cSocket, messageId, 1)
+        isSuccess, header = getHeader(messageId, 1)
         return hp.parsestr(header)
     except socket.error as e:
         print('Socket error: %s' % str(e))
@@ -101,7 +103,7 @@ def fullMail(cSocket, messageId):
         raise Exception(reply)
         return False, ""
 
-def open_mailDetail(cSocket, messageId):
+def open_mailDetail(messageId):
     try:
         isSuccess, mailData = fullMail(cSocket, messageId)
         headers, body = hp.parsestr(mailData)
@@ -115,32 +117,32 @@ def open_mailDetail(cSocket, messageId):
         print('Other exception: %s' % str(e))
         tk.Dialog(window, str(e))
 
+def mailList_render(listWindow):
+    isSuccess, numberOfMails = sendList()
+    for i in range(numberOfMails):
+        headers, body = preview(i+1)
+        listWindow.append(cSocket, i+1, headers, body, open_mailDetail)
+
 def start(loginWindow, serverIP, account, password):
-    cSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     print('Connecting to %s port %s' % (serverIP, PORT))
     cSocket.connect((serverIP, PORT))
     
-    pop3_init(cSocket)
+    pop3_init()
     try:
-        sendUser(cSocket,account)
-        sendPassword(cSocket,password)
-
-        listWindow = tk.ListWindow(account, lambda: sendQuit(cSocket))
-
-        isSuccess, numberOfMails = sendList(cSocket)
-        for i in range(numberOfMails):
-            headers, body = preview(cSocket, i+1)
-            listWindow.append(cSocket, i+1, headers, body, open_mailDetail)
+        sendUser(account)
+        sendPassword(password)
+        listWindow = tk.ListWindow(account, sendQuit)
+        mailList_render(listWindow)
 
 #        deleteMail(cSocket,str(1))
     except socket.error as e:
         print('Socket error: %s' % str(e))
         tk.Dialog(loginWindow, str(e))
-        sendQuit(cSocket)
+        sendQuit()
     except Exception as e:
         print('Other exception: %s' % str(e))
         tk.Dialog(loginWindow, str(e))
-        sendQuit(cSocket)
+        sendQuit()
         
 def main():
     loginWindow = tk.LoginWindow(start)

@@ -78,7 +78,7 @@ class ListWindow(tk.Toplevel):
         self.configure(menu = menubar)
 
     def reset(self):
-        for children in self.winfo_children():
+        for children in self.frame.winfo_children():
             children.destroy()
         print('reset')
 
