@@ -1,4 +1,5 @@
 import tkinter as tk
+import tkinter.simpledialog as sd
 from datetime import datetime
 
 class LoginWindow(tk.Tk):
@@ -28,7 +29,7 @@ class LoginWindow(tk.Tk):
         passEntry.insert(0, 'K4ZrAHDB')
         passEntry.grid(row = 2, column = 1)
 
-        start_btn = tk.Button(self, text='連線', command = lambda: start(ipEntry.get(), accountEntry.get(), passEntry.get()))
+        start_btn = tk.Button(self, text='連線', command = lambda: start(self, ipEntry.get(), accountEntry.get(), passEntry.get()))
         start_btn.grid(row = 3, column = 0,columnspan = 2, pady = 20, sticky = "WENS")
 
 
@@ -77,6 +78,8 @@ class ListWindow(tk.Toplevel):
         self.configure(menu = menubar)
 
     def reset(self):
+        for children in self.winfo_children():
+            children.destroy()
         print('reset')
 
     def resize_frame(self, e):
@@ -146,3 +149,20 @@ class MailWindow(tk.Toplevel):
         text.pack(side = 'bottom', fill = 'both', expand = True)
         scrollbar.config(command = text.yview)
         frame.grid(row = 6, column = 0, columnspan = 2, sticky = 'nsew', pady = (40, 5), padx = 20)
+
+
+
+class Dialog(sd.Dialog):
+    def __init__(self, parent, text):
+        self.text = text
+        super().__init__(parent, "錯誤")
+        
+    def body(self, frame):
+        tk.Label(frame, text = self.text, justify = 'left', width = 50, pady = 10).pack()
+
+    def buttonbox(self):
+        self.ok__button = tk.Button(self, text = '好', command = self.ok_pressed, default = 'active', width = 5)
+        self.ok__button.pack(side = 'bottom', pady = 10, expand = True)
+
+    def ok_pressed(self):
+        self.destroy()
