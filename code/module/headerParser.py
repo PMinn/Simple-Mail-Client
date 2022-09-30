@@ -1,31 +1,4 @@
-def parseHeaderFromStr(reply):
-    line = reply.split("\r\n")
-    lastKey = ''
-    response = {}
-    body = ''
-    isInHeader = True
-    bodyLine = 0
-    bodyStartIndex = 0
-    for i in range(1, len(line)):
-        if isInHeader:
-            if line[i] == "":
-                isInHeader = False
-                bodyStartIndex = i + 1
-            elif line[i][0] != '\t':
-                key = line[i].split(': ')[0]
-                value = line[i].split(key+': ')[1]
-                response[key] = value
-                lastKey = key
-            else:
-                response[lastKey] += line[i]
-        else:
-            body += line[i]
-            bodyLine += 1
-            if i != len(line)-3:
-                body += '\n'
-    return response, body, bodyLine
-
-
+from email.header import decode_header
 class Mail():
     def __init__(self, receiveFunc):
         self.receiveFunc = receiveFunc
@@ -36,8 +9,9 @@ class Mail():
 
         reply = self.receiveFunc()
         self.handleHeader(reply)
-        #self.headers['Lines'] = int(self.headers['Lines'])
-
+        headersDecode = decode_header(self.headers['Subject'])[0]
+        if headersDecode[1] != None:
+            self.headers['Subject'] = headersDecode[0].decode(headersDecode[1], 'ignore')
 
     def handleHeader(self, reply):
         lines = reply.split("\r\n")

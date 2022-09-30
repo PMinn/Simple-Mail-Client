@@ -6,10 +6,9 @@
 ####################################################
 import sys
 import socket
-from getpass import getpass
 import module.tk as tk
 import module.headerParser as hp
-
+import time
 
 PORT = 110
 BUFF_SIZE = 1024
@@ -116,30 +115,14 @@ def preview(messageId):
     except Exception as e:
         print('Other exception: %s' % str(e))
 
-def fullMail(cSocket, messageId):
+def sendRetr(cSocket, messageId):
     cmd = f"RETR {str(messageId)}\r\n"
     cSocket.send(cmd.encode('utf-8'))
-    '''
-    reply = cSocket.recv(BUFF_SIZE).decode('utf-8')
-    print('-----------------------mail---------------------')
-    print(reply)
-    print('---------------------end mail-------------------')
-    if reply[0] == '+':
-        return True, reply
-    else:
-        raise Exception(reply)
-        return False, ""
-        '''
 
 def open_mailDetail(listWindow, messageId):
     try:
-        #isSuccess, mailData = 
-        fullMail(cSocket, messageId)
+        sendRetr(cSocket, messageId)
         mail = hp.Mail(receiveFunc)
-        #headers, body, bodyLine = hp.parsestr(mailData)
-        #reply = cSocket.recv(BUFF_SIZE).decode('utf-8')
-        #print('['+  mail.headers['Lines'] +']: '+ str(mail.bodyLine))
-        #print(reply)
         mailWindow = tk.MailWindow(mail.headers, mail.body)
         print(mail.headers)
         print(mail.body)

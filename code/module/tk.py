@@ -123,7 +123,7 @@ class MailWindow(tk.Toplevel):
         self.grid_rowconfigure(6, weight = 1)
 
         fromKeyLabel = tk.Label(self, text = '寄件者：', justify = 'left')
-        fromKeyLabel.grid(row = 0, column = 0, sticky = 'w', padx = (20, 0), pady = (0, 40))
+        fromKeyLabel.grid(row = 0, column = 0, sticky = 'w', padx = (20, 0))
 
         fromValueLabel = tk.Label(self, text = headers['From'], justify = 'left')
         fromValueLabel.grid(row = 0, column = 1, sticky = 'w')
