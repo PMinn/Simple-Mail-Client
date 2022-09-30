@@ -62,8 +62,15 @@ class MailList(tk.Frame):
         dateLabel.bind("<Button-1>", lambda e: clickFunc(self.window, indexMail))
 
     def delete(self):
-        self.deleteFunc(self.indexMail)
-        self.window.refresh()
+        try:
+            self.deleteFunc(self.indexMail)
+            self.window.refresh()
+        except socket.error as e:
+            print('Socket error: %s' % str(e))
+            self.window.error('Socket error: %s' % str(e))
+        except Exception as e:
+            print('Other exception: %s' % str(e))
+            self.window.error('Other exception: %s' % str(e))
 
 class ListWindow(tk.Toplevel):
     def __init__(self, account, render, stopFunc, resetFunc):
