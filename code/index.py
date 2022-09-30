@@ -1,14 +1,10 @@
 ####################################################
-#  Network Programming - Unit 3 Application based on TCP         
-#  Program Name: pop3client.py                                      			
-#  The program is a simple POP3 client.            		
-#  2021.08.03                                                   									
+#  D1014636 潘子珉                                                									
 ####################################################
 import sys
 import socket
 import module.tk as tk
 import module.headerParser as hp
-import time
 
 PORT = 110
 BUFF_SIZE = 1024

@@ -1,3 +1,6 @@
+####################################################
+#  D1014636 潘子珉                                                									
+####################################################
 from email.header import decode_header
 class Mail():
     def __init__(self, receiveFunc):
