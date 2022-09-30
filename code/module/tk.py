@@ -26,9 +26,9 @@ class LoginWindow(tk.Tk):
         accountEntry.grid(row = 1, column = 1)
         accountEntry.insert(0, 'iecs01')
 
-        passLabel = tk.Label(self ,text = "密碼", show = '*')
+        passLabel = tk.Label(self ,text = "密碼")
         passLabel.grid(row = 2, column = 0)
-        passEntry = tk.Entry(self)
+        passEntry = tk.Entry(self, show = '*')
         passEntry.insert(0, 'K4ZrAHDB')
         passEntry.grid(row = 2, column = 1)
 
